@@ -256,7 +256,7 @@ a.delete {display:inline-block;
 }
 </style>
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
-<script>
+<script type="text/javascript" >
 (function($){
 	$.fn.tablesorter = function() {
 		var $table = this;
@@ -417,16 +417,16 @@ $(function(){
 			.addClass('download').text('download');
 		var $delete_link = $('<a href="#" />').attr('data-file',data.path).addClass('delete').text('delete');
 		var perms = [];
-		if(data.is_readable) perms.push('read');
-		if(data.is_writable) perms.push('write');
-		if(data.is_executable) perms.push('exec');
+		if(data.is_readable) perms.push('r');
+		if(data.is_writable) perms.push('w');
+		if(data.is_executable) perms.push('x');
 		var $html = $('<tr />')
 			.addClass(data.is_dir ? 'is_dir' : '')
 			.append( $('<td class="first" />').append($link) )
 			.append( $('<td/>').attr('data-sort',data.is_dir ? -1 : data.size)
 				.html($('<span class="size" />').text(formatFileSize(data.size))) )
 			.append( $('<td/>').attr('data-sort',data.mtime).text(formatTimestamp(data.mtime)) )
-			.append( $('<td/>').text(perms.join('+')) )
+			.append( $('<td/>').text(perms.join('')) )
 			.append( $('<td/>').append($dl_link).append( data.is_deleteable ? $delete_link : '') )
 		return $html;
 	}
@@ -443,18 +443,26 @@ $(function(){
 		});
 		return $html;
 	}
-	function formatTimestamp(unix_timestamp) {
-		var m = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-		var d = new Date(unix_timestamp*1000);
-		return [m[d.getMonth()],' ',d.getDate(),', ',d.getFullYear()," ",
-			(d.getHours() % 12 || 12),":",(d.getMinutes() < 10 ? '0' : '')+d.getMinutes(),
-			" ",d.getHours() >= 12 ? 'PM' : 'AM'].join('');
-	}
+
+	const pad = (x) => ("0" + x).substr(-2);
+
+  function formatTimestamp(unix_timestamp) {
+      var date = new Date(unix_timestamp*1000);
+
+      var month = pad(date.getMonth() + 1);
+      var day = pad(date.getDate());
+      var hour = pad(date.getHours());
+      var min = pad(date.getMinutes());
+      var y = pad(date.getFullYear());
+
+      return `${day}/${month}/${y} ${hour}:${min}`;
+  }
+
 	function formatFileSize(bytes) {
-		var s = ['bytes', 'KB','MB','GB','TB','PB','EB'];
+		var s = ['bytes', 'k','M','G'];
 		for(var pos = 0;bytes >= 1000; pos++,bytes /= 1024);
 		var d = Math.round(bytes*10);
-		return pos ? [parseInt(d/10),".",d%10," ",s[pos]].join('') : bytes + ' bytes';
+		return pos ? [parseInt(d/10),".",d%10," ",s[pos]].join('') : bytes + ' b';
 	}
 })
 
