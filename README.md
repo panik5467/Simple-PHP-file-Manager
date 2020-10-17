@@ -1,3 +1,6 @@
+Thanks to [@jcampbell1](https://github.com/jcampbell1) for his excellent work !
+
+
 simple-file-manager
 ===================
 
